@@ -1,0 +1,64 @@
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+</script>
+<script src="http://code.responsivevoice.org/responsivevoice.js"></script>
+<script>
+    $.ajaxSetup({
+        cache: false
+    });
+
+    setInterval(function () {
+        $.getJSON('http://syn.t-l.ch/apps/LineStopDeparturesList?roid=3377704015495689&lineid=11821953316814886', function (data) {
+            $('#one').empty();
+            $('#one').append(data.journeys.journey[0].waiting_time);
+            $('#two').empty();
+            $('#two').append(data.journeys.journey[1].waiting_time);
+            $('#three').empty();
+            $('#three').append(data.journeys.journey[2].waiting_time);
+            $('#stop').empty();
+            $('#stop').append("["+data.journeys.journey[0].line[0].line_long_name+"] "+data.journeys.stop_area_city_name+", "+data.journeys.stop_name);
+        });
+    }, 2000);
+
+    var speak = function() {
+        $.getJSON('http://syn.t-l.ch/apps/LineStopDeparturesList?roid=3377704015495689&lineid=11821953316814886', function (data) {
+            var d = new Date();
+            var one = data.journeys.journey[0].waiting_time;
+            var two = data.journeys.journey[1].waiting_time;
+            if (one.charAt(4) == 0) {
+                var onefull = "à l'arret"
+            } else if (one.charAt(3) == 0) {
+                var onefull = "dans "+one.charAt(4) + " minutes"
+            } else {
+                var onefull = "dans "+one.charAt(3) + one.charAt(4) + " minutes"
+            }
+
+            if (two.charAt(3) == 0) {
+                var twofull = two.charAt(4)
+            } else {
+                var twofull = two.charAt(3) + one.charAt(4)
+            }
+            responsiveVoice.speak("Ligne " + data.journeys.journey[0].line[0].line_long_name + ". direction. " + data.journeys.journey[0].destination[0].stop_name + "... Prochain bus " + onefull + ".. le suivant dans " + twofull + " minutes.", "French Female");
+        });
+    }
+    setInterval(speak, 30000);
+
+    window.onload = speak;
+</script>
+<div class="container" style="margin-top:4em;">
+
+    <h1 id="stop">Chargement..</h1>
+
+<blockquote>
+  <h2 id='one'></h2>
+  <small>Prochain bus</small>
+</blockquote>
+<blockquote>
+  <h4 id='two'></h4>
+  <small>Deuxième bus</small>
+</blockquote>
+<blockquote>
+  <h5 id='three'></h5>
+  <small>Troisième bus</small>
+</blockquote>
+</div>
